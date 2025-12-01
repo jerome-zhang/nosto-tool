@@ -1,0 +1,253 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nosto Link Replacement Tool</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .description {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+        }
+        
+        .step {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            border-left: 4px solid #3498db;
+        }
+        
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: monospace;
+            resize: vertical;
+        }
+        
+        button {
+            padding: 10px 20px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px auto;
+            display: block;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        .copy-btn {
+            background-color: #2ecc71;
+        }
+        
+        .copy-btn:hover {
+            background-color: #27ae60;
+        }
+        
+        .link-count {
+            background-color: #e8f4fc;
+            padding: 8px 12px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        
+        .instructions {
+            background-color: #fff8e1;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            border-left: 4px solid #f39c12;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Nosto Link Replacement Tool</h1>
+        <p class="description">Easily extract Nosto links from new documents and replace them in your email template</p>
+        
+        <div class="step">
+            <h3>1. Paste New Document Content</h3>
+            <p>Copy and paste the content from your new .docx file</p>
+            <textarea id="newCode" placeholder="Paste the content of your new .docx file here..." rows="10"></textarea>
+        </div>
+        
+        <div class="step">
+            <h3>2. Replace Links</h3>
+            <p>Click the button below to extract Nosto links and replace them in the template</p>
+            <button onclick="replaceLinks()">Replace Links</button>
+        </div>
+        
+        <div class="step">
+            <h3>3. Copy Result</h3>
+            <p>Copy the updated template with new Nosto links</p>
+            <div class="link-count" id="linkCount">Links found: 0 | Links replaced: 0</div>
+            <textarea id="result" placeholder="The updated template will appear here..." rows="15" readonly></textarea>
+            <button class="copy-btn" onclick="copyResult()">Copy Result Code</button>
+        </div>
+        
+        <div class="instructions">
+            <h4>How to Use This Tool</h4>
+            <ul>
+                <li>Copy the entire content from your new .docx file (e.g., 120625_FP_Coat.docx)</li>
+                <li>Paste it into the first text area</li>
+                <li>Click "Replace Links" to automatically extract and replace Nosto links</li>
+                <li>Copy the result from the bottom text area</li>
+                <li>Use the updated template in your email campaign</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // 固定的B模板
+        const templateB = `<tr>
+              <td align="center" style="padding: 0 19px 6px 13px; background-color: #ffffff;">
+                <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                 <tr>
+                  <td align="center" style="font-family: Arial, Helvetica, sans-serif;color: #000000;padding: 42px 0 0 0;font-size: 30px;letter-spacing: -0.9px;line-height: 30px;">
+                   <p class="hide-on-mobile" style="font-family: Arial; font-size: 30px; font-weight: normal; text-align: CENTER; color: #000000; text-decoration: none; font-style: normal; padding: 0 0 0 0 !important; margin: 0 !important;">YOUR PERSONAL EDIT</p>
+				   <p class="hide-on-desktop" style="font-family: Arial; font-size: 20px; font-weight: normal; text-align: CENTER; color: #000000; text-decoration: none; font-style: normal; padding: 0 0 0 0 !important; margin: 0 !important;">YOUR PERSONAL EDIT</p>
+                  </td>
+                 </tr>
+                 <tr>
+                  <td align="center" style="padding: 40px 0 0 0;">
+                   <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                    <tr>
+                     <td align="left" valign="top" style="padding: 0 8px 47px 0;">
+                      <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                       <tr>
+                        <td align="left" valign="top" style="padding: 0 4px 0 6px;">
+                         <a href="https://connect.nosto.com/image/v1/magento-24804971/7fbc4faac5bed9626b13ef3900acddaf2a3cfe69/1/go?uid={{ email }}&amp;version=2.1.0"><img src="https://connect.nosto.com/image/v1/magento-24804971/7fbc4faac5bed9626b13ef3900acddaf2a3cfe69/1/combined?uid={{ email }}&amp;version=2.1.0" alt="" width="270" style="display:block!important;font-size: 26px;color: #000000;background-color: #ececec;" border="0" /></a>
+                        </td>
+                       </tr>
+                      </table>
+                     </td>
+                     <td align="left" valign="top">
+                      <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                       <tr>
+                        <td align="left" valign="top" style="padding: 0 4px 0 6px;">
+                         <a href="https://connect.nosto.com/image/v1/magento-24804971/7fbc4faac5bed9626b13ef3900acddaf2a3cfe69/2/go?uid={{ email }}&amp;version=2.1.0"><img src="https://connect.nosto.com/image/v1/magento-24804971/7fbc4faac5bed9626b13ef3900acddaf2a3cfe69/2/combined?uid={{ email }}&amp;version=2.1.0" alt="" width="270" style="display:block!important;font-size: 26px;color: #000000;background-color: #ececec;" border="0" /></a>
+                        </td>
+                       </tr>
+                      </table>
+                     </td>
+                    </tr>
+                    <tr>
+                     <td align="left" valign="top" style="padding: 0 8px 47px 0;">
+                      <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                       <tr>
+                        <td align="left" valign="top" style="padding: 0 4px 0 6px;">
+                         <a href="https://connect.nosto.com/image/v1/magento-24804971/7fbc4faac5bed9626b13ef3900acddaf2a3cfe69/3/go?uid={{ email }}&amp;version=2.1.0"><img src="https://connect.nosto.com/image/v1/magento-24804971/7fbc4faac5bed9626b13ef3900acddaf2a3cfe69/3/combined?uid={{ email }}&amp;version=2.1.0" alt="" width="270" style="display:block!important;font-size: 26px;color: #000000;background-color: #ececec;" border="0" /></a>
+                        </td>
+                       </tr>
+                      </table>
+                     </td>
+                     <td align="left" valign="top">
+                      <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                       <tr>
+                        <td align="left" valign="top" style="padding: 0 4px 0 6px;">
+                         <a href="https://connect.nosto.com/image/v1/magento-24804971/7fbc4faac5bed9626b13ef3900acddaf2a3cfe69/4/go?uid={{ email }}&amp;version=2.1.0"><img src="https://connect.nosto.com/image/v1/magento-24804971/7fbc4faac5bed9626b13ef3900acddaf2a3cfe69/4/combined?uid={{ email }}&amp;version=2.1.0" alt="" width="270" style="display:block!important;font-size: 26px;color: #000000;background-color: #ececec;" border="0" /></a>
+                        </td>
+                       </tr>
+                      </table>
+                     </td>
+                    </tr>
+                   </table>
+                  </td>
+                 </tr>
+                </table>
+              </td>
+           </tr>`;
+
+        function replaceLinks() {
+            const newCode = document.getElementById('newCode').value;
+            
+            if (!newCode.trim()) {
+                alert("Please paste the content from your new document first.");
+                return;
+            }
+            
+            // 提取新代码中的所有Nosto链接
+            const newLinks = [];
+            const linkRegex = /https:\/\/connect\.nosto\.com[^"']+/g;
+            const matches = newCode.match(linkRegex);
+            
+            if (matches) {
+                matches.forEach(link => {
+                    // 保持链接原样，不进行任何解码
+                    newLinks.push(link);
+                });
+            }
+            
+            // 开始替换模板
+            let result = templateB;
+            let replacedCount = 0;
+            
+            // 替换模板中的链接
+            const templateLinkRegex = /https:\/\/connect\.nosto\.com[^"']+/g;
+            const templateMatches = result.match(templateLinkRegex);
+            
+            if (templateMatches && newLinks.length >= templateMatches.length) {
+                templateMatches.forEach((oldLink, index) => {
+                    if (newLinks[index]) {
+                        // 直接替换整个链接，保持原样
+                        result = result.replace(oldLink, newLinks[index]);
+                        replacedCount++;
+                    }
+                });
+            }
+            
+            // 更新链接计数显示
+            document.getElementById('linkCount').innerHTML = 
+                `Links found: ${newLinks.length} | Links replaced: ${replacedCount}`;
+            
+            document.getElementById('result').value = result;
+            
+            if (replacedCount === 0) {
+                alert("No Nosto links were found in the pasted content. Please check your input.");
+            }
+        }
+        
+        function copyResult() {
+            const resultTextarea = document.getElementById('result');
+            if (resultTextarea.value.trim() === '') {
+                alert("No result to copy. Please generate the result first.");
+                return;
+            }
+            
+            resultTextarea.select();
+            document.execCommand('copy');
+            alert("Result copied to clipboard!");
+        }
+    </script>
+</body>
+</html>
