@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -81,6 +80,15 @@
             margin-bottom: 10px;
         }
         
+        .info-box {
+            background-color: #e8f4fc;
+            padding: 10px 15px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            font-size: 14px;
+            color: #2c3e50;
+        }
+        
         .instructions {
             background-color: #fff8e1;
             padding: 15px;
@@ -93,7 +101,7 @@
 <body>
     <div class="container">
         <h1>Nosto Link Replacement Tool</h1>
-        <p class="description">Easily extract Nosto links from new documents and replace them in your email template</p>
+        <p class="description">Easily extract Nosto links and header text from new documents and replace them in your email template</p>
         
         <div class="step">
             <h3>1. Paste New Document Content</h3>
@@ -102,15 +110,16 @@
         </div>
         
         <div class="step">
-            <h3>2. Replace Links</h3>
-            <p>Click the button below to extract Nosto links and replace them in the template</p>
-            <button onclick="replaceLinks()">Replace Links</button>
+            <h3>2. Replace Links and Header</h3>
+            <p>Click the button below to extract Nosto links and header text, then replace them in the template</p>
+            <button onclick="replaceLinksAndHeader()">Replace Links and Header</button>
         </div>
         
         <div class="step">
             <h3>3. Copy Result</h3>
-            <p>Copy the updated template with new Nosto links</p>
+            <p>Copy the updated template with new Nosto links and header text</p>
             <div class="link-count" id="linkCount">Links found: 0 | Links replaced: 0</div>
+            <div class="info-box" id="headerInfo">Header text extracted: None</div>
             <textarea id="result" placeholder="The updated template will appear here..." rows="15" readonly></textarea>
             <button class="copy-btn" onclick="copyResult()">Copy Result Code</button>
         </div>
@@ -120,19 +129,19 @@
             <ul>
                 <li>Copy the entire content from your new .docx file (e.g., 120625_FP_Coat.docx)</li>
                 <li>Paste it into the first text area</li>
-                <li>Click "Replace Links" to automatically extract and replace Nosto links</li>
+                <li>Click "Replace Links and Header" to automatically extract and replace Nosto links and header text</li>
                 <li>Copy the result from the bottom text area</li>
                 <li>Use the updated template in your email campaign</li>
             </ul>
         </div>
-
+		
 		<div style="margin: 30px 0 0 0;text-align: right;width: 100%;">@author: Echo Chen</div>
     </div>
-
+    
     <script>
-        // 固定的B模板
-		const templateB = `<table border="0" cellpadding="0" cellspacing="0" width="100%">
-			<tr>
+        // 固定的模板
+        const templateB = `<table border="0" cellpadding="0" cellspacing="0" width="100%">
+	<tr>
               <td align="center" style="padding: 0 19px 6px 13px; background-color: #ffffff;">
                 <table border="0" cellpadding="0" cellspacing="0" width="100%">
                  <tr>
@@ -190,9 +199,9 @@
                 </table>
               </td>
            </tr>
-		</table>`;
+</table>`;
 
-        function replaceLinks() {
+        function replaceLinksAndHeader() {
             const newCode = document.getElementById('newCode').value;
             
             if (!newCode.trim()) {
@@ -200,7 +209,24 @@
                 return;
             }
             
-            // 提取新代码中的所有Nosto链接
+            // 1. 提取标题文本
+            let headerText = "YOUR PERSONAL EDIT"; // 默认值
+            const headerRegex = /<h2[^>]*class\s*=\s*["']nostoHeader["'][^>]*>(.*?)<\/h2>/i;
+            const headerMatch = newCode.match(headerRegex);
+            
+            if (headerMatch && headerMatch[1]) {
+                // 提取h2标签内的文本内容，去除HTML标签
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = headerMatch[1];
+                headerText = tempDiv.textContent || tempDiv.innerText || "YOUR PERSONAL EDIT";
+                
+                // 更新显示提取的标题
+                document.getElementById('headerInfo').innerHTML = `Header text extracted: "${headerText}"`;
+            } else {
+                document.getElementById('headerInfo').innerHTML = 'Header text extracted: None (using default)';
+            }
+            
+            // 2. 提取新代码中的所有Nosto链接
             const newLinks = [];
             const linkRegex = /https:\/\/connect\.nosto\.com[^"']+/g;
             const matches = newCode.match(linkRegex);
@@ -212,11 +238,14 @@
                 });
             }
             
-            // 开始替换模板
+            // 3. 开始替换模板
             let result = templateB;
-            let replacedCount = 0;
             
-            // 替换模板中的链接
+            // 3.1 先替换标题文本
+            result = result.replace(/YOUR PERSONAL EDIT/g, headerText);
+            
+            // 3.2 替换模板中的链接
+            let replacedCount = 0;
             const templateLinkRegex = /https:\/\/connect\.nosto\.com[^"']+/g;
             const templateMatches = result.match(templateLinkRegex);
             
